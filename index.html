@@ -247,16 +247,65 @@ const SUPS_DEFAULT=[
   {name:'Geisiane',ico:'●',emps:['casa_maua']},
 ];
 const ICOS=['●','●','●','●','●','●','●','●'];
+
+// ========== GOOGLE SHEETS SYNC ==========
+// Cole aqui a URL do seu Apps Script
+const API_URL = 'https://script.google.com/macros/s/AKfycbzWEe2uu6ItLtVcMsvOX82ghKDEAKf4dZVKIuvD871fUzeWqhqFNKD5Y2wrnNjjfLz-vg/exec';  // ← COLE SUA URL AQUI
+
 const cfgK='l26cfg';
-function loadCfg(){try{return JSON.parse(localStorage.getItem(cfgK))||null}catch{return null}}
-function saveCfg(c){localStorage.setItem(cfgK,JSON.stringify(c))}
+const gK='l26g3',oK='l26o3',cK='l26c3';
+const ALLKEYS=[gK,oK,cK,cfgK];
+
+function _get(k){try{return JSON.parse(localStorage.getItem(k))||null}catch{return null}}
+function _set(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+function cloudSave(k,v){
+  if(!API_URL)return;
+  showSync('💾 Salvando...');
+  fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({key:k,value:JSON.stringify(v)})
+  }).then(()=>showSync('✅ Salvo')).catch(e=>{console.warn('Sync:',e);showSync('⚠ Erro sync')});
+}
+
+async function cloudLoad(){
+  if(!API_URL){showSync('⚠ Configure API_URL');return}
+  showSync('☁ Carregando...');
+  try{
+    const r=await fetch(API_URL+'?t='+Date.now());
+    const data=await r.json();
+    if(data&&typeof data==='object'){
+      // Merge histórico da aba RESUMO no BL
+      if(data.historico){
+        Object.keys(data.historico).forEach(k=>{
+          BL[k]=data.historico[k];
+        });
+      }
+      // Carregar dados do dashboard
+      ALLKEYS.forEach(k=>{if(data[k]){try{_set(k,JSON.parse(data[k]))}catch{}}});
+      refreshCfg();render();
+      showSync('✅ Sincronizado');
+    }
+  }catch(e){console.warn('Cloud load:',e);showSync('⚠ Offline')}
+}
+
+function showSync(msg){
+  let el=document.getElementById('syncSt');
+  if(!el){el=document.createElement('div');el.id='syncSt';
+    el.style.cssText='position:fixed;bottom:12px;right:12px;background:#000;color:#fff;padding:6px 14px;border-radius:50px;font-size:11px;font-family:Syne;font-weight:600;z-index:999;opacity:0;transition:opacity .3s';
+    document.body.appendChild(el)}
+  el.textContent=msg;el.style.opacity='1';
+  clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',3000);
+}
+
+function loadCfg(){return _get(cfgK)}
+function saveCfg(c){_set(cfgK,c);cloudSave(cfgK,c)}
 function getCfg(){const c=loadCfg();return c||{emps:E_DEFAULT,sups:SUPS_DEFAULT}}
 let E,SUPS;
 function refreshCfg(){const c=getCfg();E=c.emps;SUPS=c.sups}
 refreshCfg();
 const MP=['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const T={s1:{uhs:400,fat:500000,mg:15,co:38,nota:8.3,novas:20,assin:30,churn:2,fatUh:1300,lucUh:187},s2:{uhs:500,fat:650000,mg:20,co:35,nota:8.5,novas:25,assin:30,churn:1.5,fatUh:1300,lucUh:260}};
-const BL={
+let BL={
 '2023-01':{uhs:107,fat:153703,res:62520},'2023-02':{uhs:114,fat:193267,res:100824},'2023-03':{uhs:121,fat:181350,res:87647},
 '2023-04':{uhs:115,fat:146431,res:53808},'2023-05':{uhs:118,fat:143831,res:50668},'2023-06':{uhs:120,fat:120869,res:27346},
 '2023-07':{uhs:120,fat:137222,res:43699},'2023-08':{uhs:128,fat:147304,res:52341},'2023-09':{uhs:123,fat:145239,res:51176},
@@ -272,13 +321,12 @@ const BL={
 '2026-01':{uhs:342,fat:536294,res:159532},
 };
 
-const gK='l26g3',oK='l26o3',cK='l26c3';
-const gS=()=>{try{return JSON.parse(localStorage.getItem(gK))||{}}catch{return{}}};
-const oS=()=>{try{return JSON.parse(localStorage.getItem(oK))||{}}catch{return{}}};
-const cS=()=>{try{return JSON.parse(localStorage.getItem(cK))||{}}catch{return{}}};
-const gW=d=>localStorage.setItem(gK,JSON.stringify(d));
-const oW=d=>localStorage.setItem(oK,JSON.stringify(d));
-const cW=d=>localStorage.setItem(cK,JSON.stringify(d));
+const gS=()=>_get(gK)||{};
+const oS=()=>_get(oK)||{};
+const cS=()=>_get(cK)||{};
+const gW=d=>{_set(gK,d);cloudSave(gK,d)};
+const oW=d=>{_set(oK,d);cloudSave(oK,d)};
+const cW=d=>{_set(cK,d);cloudSave(cK,d)};
 const cm=()=>document.getElementById('mSel').value;
 const ml=k=>{const[y,m]=k.split('-');return MP[+m]+'/'+y.slice(2)};
 const tt=m=>+m.split('-')[1]<=6?T.s1:T.s2;
@@ -714,6 +762,7 @@ function delEmp(ei){
 
 render();
 window.addEventListener('resize',render);
+cloudLoad();
 </script>
 </body>
 </html>
