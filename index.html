@@ -145,6 +145,7 @@ body.tv .topbar .btn,body.tv .sel:first-of-type{display:none}
     <div class="topbar-r">
       <select class="sel" id="mSel"></select>
       <button class="btn btn-p" onclick="openM('g')">＋ Dados</button>
+      <a href="https://docs.google.com/spreadsheets/d/1" target="_blank" id="sheetLink" class="btn btn-o" style="text-decoration:none;font-size:10px">📊 Planilha</a>
       <button class="btn" style="background:var(--purple);color:#fff;border-color:var(--purple)" onclick="openM('c')">Comercial</button>
       <button class="btn btn-g" onclick="openM('o')">Operacional</button>
       <button class="btn btn-o" onclick="toggleTV()">TV</button>
@@ -160,6 +161,13 @@ body.tv .topbar .btn,body.tv .sel:first-of-type{display:none}
 
   <div class="view active" id="opV">
     <div class="op-top" id="clusters"></div>
+    <div style="margin:8px 0;padding:10px 14px;background:var(--bg2);border-radius:12px;border-left:3px solid var(--purple)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--purple)">Resumo Comercial</div>
+        <div style="font-size:10px;color:var(--text2);cursor:pointer" onclick="sw(document.querySelectorAll('.tab')[1],'com')">Ver detalhes →</div>
+      </div>
+      <div id="opComCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px"></div>
+    </div>
     <div class="op-bottom" id="opKpis"></div>
   </div>
 
@@ -174,7 +182,6 @@ body.tv .topbar .btn,body.tv .sel:first-of-type{display:none}
     <div class="dir-mid">
       <div class="dir-chart"><div class="dir-chart-title"><div class="cdot" style="background:var(--accent)"></div>UHs com Repasse</div><div id="chUhs" style="flex:1"></div></div>
       <div class="dir-chart"><div class="dir-chart-title"><div class="cdot" style="background:var(--green)"></div>Margem (%)</div><div id="chMarg" style="flex:1"></div></div>
-      <div class="dir-chart"><div class="dir-chart-title"><div class="cdot" style="background:var(--purple)"></div>Bônus Diretores</div><div id="dirBonus" style="flex:1"></div></div>
     </div>
     <div class="dir-bottom" id="dirAreas"></div>
   </div>
@@ -269,7 +276,8 @@ const OP_HIST={
 
 // ========== GOOGLE SHEETS SYNC ==========
 // Cole aqui a URL do seu Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbzWEe2uu6ItLtVcMsvOX82ghKDEAKf4dZVKIuvD871fUzeWqhqFNKD5Y2wrnNjjfLz-vg/exec';  // ← COLE SUA URL AQUI
+const API_URL = 'https://script.google.com/macros/s/AKfycbzWEe2uu6ItLtVcMsvOX82ghKDEAKf4dZVKIuvD871fUzeWqhqFNKD5Y2wrnNjjfLz-vg/exec';
+const SHEET_URL = '';  // ← Cole a URL da planilha Métricas Lobie aqui (opcional)
 
 const cfgK='l26cfg';
 const gK='l26g3',oK='l26o3',cK='l26c3';
@@ -291,30 +299,32 @@ async function cloudLoad(){
   showSync('☁ Carregando...');
   try{
     const r=await fetch(API_URL+'?t='+Date.now());
-    const data=await r.json();
-    if(data&&typeof data==='object'){
-      // Merge histórico da aba RESUMO no BL
-      if(data.historico){
-        Object.keys(data.historico).forEach(k=>{
-          BL[k]=data.historico[k];
-        });
-      }
-      // Carregar dados do dashboard
-      ALLKEYS.forEach(k=>{if(data[k]){try{_set(k,JSON.parse(data[k]))}catch{}}});
-      refreshCfg();render();
+    const j=await r.json();
+    if(j.historico){Object.keys(j.historico).forEach(k=>{BL[k]=j.historico[k]})}
+    if(j.l26g3){try{const d=JSON.parse(j.l26g3);Object.keys(d).forEach(k=>{const s=gS();s[k]=d[k];_set(gK,s)})}catch(e){}}
+    if(j.l26o3){try{const d=JSON.parse(j.l26o3);Object.keys(d).forEach(k=>{const s=oS();s[k]=d[k];_set(oK,s)})}catch(e){}}
+    if(j.l26c3){try{const d=JSON.parse(j.l26c3);Object.keys(d).forEach(k=>{const s=cS();s[k]=d[k];_set(cK,s)})}catch(e){}}
+    if(j.l26cfg){try{saveCfg(JSON.parse(j.l26cfg));refreshCfg()}catch(e){}}
+    // Sheet URL
+    if(j.sheetUrl){const btn=document.getElementById('sheetLink');if(btn){btn.href=j.sheetUrl;btn.style.display=''}}
+    render();
+    if(j.historico){
       showSync('✅ Sincronizado');
     }
   }catch(e){console.warn('Cloud load:',e);showSync('⚠ Offline')}
 }
-
 function showSync(msg){
   let el=document.getElementById('syncSt');
   if(!el){el=document.createElement('div');el.id='syncSt';
-    el.style.cssText='position:fixed;bottom:12px;right:12px;background:#000;color:#fff;padding:6px 14px;border-radius:50px;font-size:11px;font-family:Syne;font-weight:600;z-index:999;opacity:0;transition:opacity .3s';
+    el.style.cssText='position:fixed;bottom:12px;right:12px;background:#000;color:#fff;padding:6px 14px;border-radius:50px;font-size:11px;font-family:Syne;font-weight:600;z-index:999;transition:opacity .3s';
     document.body.appendChild(el)}
   el.textContent=msg;el.style.opacity='1';
-  clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',3000);
+  // Keep sync status visible for success/error, fade only transient states
+  if(msg.includes('✅')||msg.includes('⚠')){clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='.4',8000)}
+  else{clearTimeout(el._t)}
 }
+// Sheet link
+(function(){const btn=document.getElementById('sheetLink');if(SHEET_URL){btn.href=SHEET_URL}else{btn.style.display='none'}})()
 
 function loadCfg(){return _get(cfgK)}
 function saveCfg(c){_set(cfgK,c);cloudSave(cfgK,c)}
@@ -384,7 +394,7 @@ function aCO(o){if(!o)return null;let s=0,n=0;E.forEach(e=>{if(o[e.id]&&o[e.id].
 function aN(o){if(!o)return null;let s=0,n=0;E.forEach(e=>{if(o[e.id]&&o[e.id].nota){s+=o[e.id].nota;n++}});return n?s/n:null}
 
 // === RENDER ===
-function render(){const m=cm(),g=gD(m),o=oD(m),c=cD(m),t=tt(m);rOp(g,o,t);rCom(g,c,t);rDir(g,o,t);rHist()}
+function render(){const m=cm(),g=gD(m),o=oD(m),c=cD(m),t=tt(m);rOp(g,o,t);rOpCom(g,c,t);rCom(g,c,t);rDir(g,o,t);rHist()}
 
 function rOp(g,o,t){
   const d=g||{};const m=cm();
@@ -455,7 +465,7 @@ function rDir(g,o,t){
   document.getElementById('dirKpis').innerHTML=kpis.map(k=>`<div class="mkpi"><div class="mkpi-l">${k.l}</div><div class="mkpi-v">${k.v}</div><div class="mkpi-t">Meta: ${k.tg}</div><div class="mkpi-bar"><div class="mkpi-bar-f" style="width:${k.p}%;background:${k.bc}"></div></div></div>`).join('');
 
   const pts=aM().map(m=>({month:m,...(gD(m)||{})})).filter(x=>x.uhs);
-  rChUhs(pts,t);rChMarg(pts,t);rDirBonus(d);
+  rChUhs(pts,t);rChMarg(pts,t);
 
   const areas=[
     {n:'Comercial',metrics:[{l:'Novas UHs repasse',v:d.novas||'--',s:sc(d.novas,t.novas)},{l:'Assinaturas',v:d.assin||'--',s:sc(d.assin,t.assin)},{l:'Fat/UH',v:fatUh?'R$'+Math.round(fatUh):'--',s:sc(fatUh,t.fatUh)}]},
@@ -528,31 +538,19 @@ function rChMarg(pts,t){
   el.innerHTML=`<svg width="100%" height="100%" viewBox="0 0 ${W} ${H}">${svg}</svg>`;
 }
 
-function rDirBonus(d){
-  const res=d.res||0,rA=res*12,pool=rA*.2,perD=pool/4;
-  const assin=d.assin||0,novas=d.novas||0;
-  const cA=assin*150,cO=novas*250,oR=novas*100,tot=cA+cO+oR;
-  document.getElementById('dirBonus').innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;font-size:11px;height:100%;justify-content:center">
-    <div style="padding:12px;background:var(--bg3);border-radius:12px;border-left:3px solid var(--purple)">
-      <div style="font-weight:700;color:var(--purple);margin-bottom:6px;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Bônus Diretores (20% lucro)</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <div><span style="color:var(--text2)">Resultado:</span> <span style="font-family:'Space Mono';font-weight:700">${fR(res)}/mês</span></div>
-        <div><span style="color:var(--text2)">Anualizado:</span> <span style="font-family:'Space Mono';font-weight:700">${fR(rA)}</span></div>
-        <div><span style="color:var(--text2)">Pool 20%:</span> <span style="font-family:'Space Mono';font-weight:700">${fR(pool)}</span></div>
-        <div><span style="color:var(--text2)">Por diretor:</span> <span style="font-family:'Space Mono';font-weight:700;color:${perD>50000?'var(--green)':'var(--text)'}">${fR(perD)}</span></div>
-      </div>
-      <div style="color:var(--text2);font-size:9px;margin-top:4px">Ernesto · Tiago · Milene · Bruno</div>
-    </div>
-    <div style="padding:12px;background:var(--bg3);border-radius:12px;border-left:3px solid var(--cyan)">
-      <div style="font-weight:700;color:var(--cyan);margin-bottom:6px;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Comissões do Mês</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <div><span style="color:var(--text2)">Assin. ${assin}×R$150:</span> <span style="font-family:'Space Mono';font-weight:700;color:var(--accent)">${fR(cA)}</span></div>
-        <div><span style="color:var(--text2)">Oper. ${novas}×R$250:</span> <span style="font-family:'Space Mono';font-weight:700;color:var(--green)">${fR(cO)}</span></div>
-        <div><span style="color:var(--text2)">Prédio ${novas}×R$100:</span> <span style="font-family:'Space Mono';font-weight:700;color:var(--amber)">${fR(oR)}</span></div>
-        <div><span style="color:var(--text2)">Total:</span> <span style="font-family:'Space Mono';font-weight:700;font-size:13px">${fR(tot)}</span></div>
-      </div>
-    </div>
-  </div>`;
+function rOpCom(g,c,t){
+  const d=g||{};const novas=d.novas||0,assin=d.assin||0;
+  let totalOp=0,totalEl=0;
+  V.forEach(v=>{const x=c&&c[v.id]||{};const a=x.assin!=null?x.assin:v.blA;const o=x.oper!=null?x.oper:v.blO;const dt=x.dist!=null?x.dist:v.blD;const el=a-dt;totalOp+=o;totalEl+=el});
+  const avgAtiv=totalEl>0?(totalOp/totalEl*100):0;
+  const churn=d.churn||'--';
+  const cards=[
+    {l:'Assinaturas',v:assin||'--',c:'var(--cyan)'},
+    {l:'Novas Repasse',v:novas||'--',c:'var(--accent)'},
+    {l:'Tx Ativação',v:avgAtiv?avgAtiv.toFixed(0)+'%':'--',c:avgAtiv>=75?'var(--green)':avgAtiv>=60?'var(--amber)':'var(--red)'},
+    {l:'Churn',v:typeof churn==='number'?churn+'%':churn,c:'var(--red)'},
+  ];
+  document.getElementById('opComCards').innerHTML=cards.map(c=>`<div style="padding:8px;background:var(--bg3);border-radius:8px;text-align:center"><div style="font-size:9px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">${c.l}</div><div style="font-size:18px;font-weight:800;font-family:'Space Mono';color:${c.c};margin-top:2px">${c.v}</div></div>`).join('');
 }
 
 function rCom(g,c,t){
