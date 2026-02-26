@@ -248,6 +248,25 @@ const SUPS_DEFAULT=[
 ];
 const ICOS=['●','●','●','●','●','●','●','●'];
 
+// === DADOS HISTÓRICOS OPERACIONAIS (Meta_Time_Operacional) ===
+const OP_HIST={
+'2024-10':{skylux:{cos:0,nota:0},botafogo:{cos:90,nota:8.7},gloria:{cos:0,nota:0},vilares:{cos:0,nota:0},mediterraneo:{cos:6,nota:8.5},queen:{cos:19,nota:8.4},casa_maua:{cos:56,nota:8.3},dias:{cos:0,nota:0}},
+'2024-11':{skylux:{cos:23,nota:7.7},botafogo:{cos:90,nota:8.3},gloria:{cos:0,nota:0},vilares:{cos:0,nota:0},mediterraneo:{cos:6,nota:8.5},queen:{cos:19,nota:7.3},casa_maua:{cos:78,nota:7.4},dias:{cos:0,nota:0}},
+'2024-12':{skylux:{cos:26,nota:8.3},botafogo:{cos:90,nota:8.1},gloria:{cos:0,nota:0},vilares:{cos:0,nota:0},mediterraneo:{cos:6,nota:7.9},queen:{cos:18,nota:7.6},casa_maua:{cos:89,nota:8.3},dias:{cos:0,nota:0}},
+'2025-01':{skylux:{cos:27,nota:8.2},botafogo:{cos:90,nota:8.1},gloria:{cos:0,nota:0},vilares:{cos:0,nota:0},mediterraneo:{cos:6,nota:7.7},queen:{cos:18,nota:7.4},casa_maua:{cos:89,nota:7.5},dias:{cos:0,nota:0}},
+'2025-02':{skylux:{cos:27,nota:8.0},botafogo:{cos:90,nota:8.1},gloria:{cos:11,nota:9.0},vilares:{cos:3,nota:10.0},mediterraneo:{cos:6,nota:7.6},queen:{cos:0,nota:0},casa_maua:{cos:89,nota:8.0},dias:{cos:0,nota:0}},
+'2025-03':{skylux:{cos:36,nota:7.6},botafogo:{cos:90,nota:8.0},gloria:{cos:12,nota:8.0},vilares:{cos:5,nota:7.0},mediterraneo:{cos:7,nota:7.4},queen:{cos:19,nota:7.4},casa_maua:{cos:101,nota:7.5},dias:{cos:0,nota:0}},
+'2025-04':{skylux:{cos:36,nota:8.9},botafogo:{cos:90,nota:8.0},gloria:{cos:12,nota:9.7},vilares:{cos:5,nota:9.2},mediterraneo:{cos:7,nota:7.4},queen:{cos:19,nota:7.4},casa_maua:{cos:101,nota:8.3},dias:{cos:0,nota:0}},
+'2025-05':{skylux:{cos:38,nota:8.7},botafogo:{cos:90,nota:8.0},gloria:{cos:11,nota:8.8},vilares:{cos:5,nota:9.2},mediterraneo:{cos:7,nota:7.3},queen:{cos:18,nota:7.4},casa_maua:{cos:92,nota:8.1},dias:{cos:15,nota:9.1}},
+'2025-06':{skylux:{cos:38,nota:8.6},botafogo:{cos:90,nota:8.0},gloria:{cos:11,nota:9.1},vilares:{cos:5,nota:8.8},mediterraneo:{cos:7,nota:7.6},queen:{cos:18,nota:8.0},casa_maua:{cos:92,nota:8.4},dias:{cos:15,nota:9.1}},
+'2025-07':{skylux:{cos:38,nota:8.1},botafogo:{cos:0,nota:0},gloria:{cos:11,nota:8.8},vilares:{cos:0,nota:0},mediterraneo:{cos:0,nota:0},queen:{cos:0,nota:0},casa_maua:{cos:92,nota:8.3},dias:{cos:15,nota:8.9}},
+'2025-08':{skylux:{cos:39,nota:8.4},botafogo:{cos:81,nota:8.1},gloria:{cos:11,nota:9.1},vilares:{cos:5,nota:8.1},mediterraneo:{cos:9,nota:8.1},queen:{cos:16,nota:7.2},casa_maua:{cos:92,nota:8.4},dias:{cos:20,nota:9.0}},
+'2025-09':{skylux:{cos:37,nota:8.4},botafogo:{cos:81,nota:8.3},gloria:{cos:13,nota:8.2},vilares:{cos:6,nota:9.2},mediterraneo:{cos:9,nota:6.2},queen:{cos:16,nota:7.8},casa_maua:{cos:90,nota:8.4},dias:{cos:20,nota:8.9}},
+'2025-10':{skylux:{cos:37,nota:8.0},botafogo:{cos:81,nota:8.4},gloria:{cos:13,nota:8.4},vilares:{cos:6,nota:7.6},mediterraneo:{cos:9,nota:7.1},queen:{cos:16,nota:7.8},casa_maua:{cos:90,nota:8.3},dias:{cos:20,nota:8.4}},
+'2025-11':{skylux:{cos:37,nota:8.2},botafogo:{cos:81,nota:7.9},gloria:{cos:13,nota:9.6},vilares:{cos:6,nota:8.4},mediterraneo:{cos:9,nota:7.7},queen:{cos:16,nota:7.2},casa_maua:{cos:88,nota:7.7},dias:{cos:20,nota:8.8}},
+'2025-12':{skylux:{cos:37,nota:7.9},botafogo:{cos:78,nota:7.9},gloria:{cos:13,nota:8.6},vilares:{cos:11,nota:8.9},mediterraneo:{cos:9,nota:6.5},queen:{cos:16,nota:8.3},casa_maua:{cos:79,nota:8.0},dias:{cos:20,nota:8.8}},
+};
+
 // ========== GOOGLE SHEETS SYNC ==========
 // Cole aqui a URL do seu Apps Script
 const API_URL = 'https://script.google.com/macros/s/AKfycbzWEe2uu6ItLtVcMsvOX82ghKDEAKf4dZVKIuvD871fUzeWqhqFNKD5Y2wrnNjjfLz-vg/exec';  // ← COLE SUA URL AQUI
@@ -329,9 +348,9 @@ const oW=d=>{_set(oK,d);cloudSave(oK,d)};
 const cW=d=>{_set(cK,d);cloudSave(cK,d)};
 const cm=()=>document.getElementById('mSel').value;
 const ml=k=>{const[y,m]=k.split('-');return MP[+m]+'/'+y.slice(2)};
-const tt=m=>+m.split('-')[1]<=6?T.s1:T.s2;
+const tt=m=>{const[y,mo]=[+m.split('-')[0],+m.split('-')[1]];if(y<2026)return T.s1;return mo<=6?T.s1:T.s2};
 const gD=m=>gS()[m]||BL[m]||null;
-const oD=m=>oS()[m]||null;
+const oD=m=>{const user=oS()[m]||null;const hist=OP_HIST[m]||null;if(!user&&!hist)return null;const merged={};if(hist)Object.keys(hist).forEach(k=>{merged[k]={...hist[k]}});if(user)Object.keys(user).forEach(k=>{merged[k]={...(merged[k]||{}),...user[k]}});return merged};
 const cD=m=>cS()[m]||null;
 const V=[
   {id:'bruno',n:'Bruno Neves',blA:177,blO:80,blD:30},
@@ -343,7 +362,13 @@ const V=[
 ];
 const aM=()=>[...new Set([...Object.keys(BL),...Object.keys(gS())])].sort();
 
-(function(){const s=document.getElementById('mSel');for(let m=1;m<=12;m++){const v=`2026-${String(m).padStart(2,'0')}`;s.innerHTML+=`<option value="${v}"${m===2?' selected':''}>${MP[m]} 2026</option>`}s.addEventListener('change',render)})();
+(function(){const s=document.getElementById('mSel');
+  // 2025 (últimos 6 meses)
+  for(let m=7;m<=12;m++){const v=`2025-${String(m).padStart(2,'0')}`;s.innerHTML+=`<option value="${v}">${MP[m]} 2025</option>`}
+  s.innerHTML+=`<option disabled>──────────</option>`;
+  // 2026
+  for(let m=1;m<=12;m++){const v=`2026-${String(m).padStart(2,'0')}`;s.innerHTML+=`<option value="${v}"${m===2?' selected':''}>${MP[m]} 2026</option>`}
+  s.addEventListener('change',render)})();
 
 // Helpers
 const fR=v=>v>=1e6?'R$'+(v/1e6).toFixed(1)+'M':v>=1000?'R$'+(v/1000).toFixed(0)+'k':'R$'+Math.round(v);
@@ -362,40 +387,44 @@ function aN(o){if(!o)return null;let s=0,n=0;E.forEach(e=>{if(o[e.id]&&o[e.id].n
 function render(){const m=cm(),g=gD(m),o=oD(m),c=cD(m),t=tt(m);rOp(g,o,t);rCom(g,c,t);rDir(g,o,t);rHist()}
 
 function rOp(g,o,t){
-  const d=g||{};
-  let html='';
+  const d=g||{};const m=cm();
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:6px 10px;background:var(--bg2);border-radius:8px;font-size:11px">`;
+  html+=`<div><span style="font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent)">Setor Operacional</span></div>`;
+  html+=`<div style="font-weight:600">${MP[+m.split('-')[1]]}/${m.split('-')[0]}</div></div>`;
   SUPS.forEach((sup,si)=>{
     const emps=sup.emps.map(id=>E.find(e=>e.id===id));
-    let sS=0,coS=0,coN=0,nS=0,nN=0,cosT=0;
-    emps.forEach(e=>{const x=o&&o[e.id]||{};if(x.sujo!=null)sS+=x.sujo;if(x.co){coS+=x.co;coN++}if(x.nota){nS+=x.nota;nN++}if(x.cos)cosT+=x.cos});
-    const avgCo=coN?coS/coN:null,avgN=nN?nS/nN:null;
-    const coSt=sc(avgCo,t.co,true),sujoSt=sS===0&&o?'g':sS>0?'r':'a',nSt=sc(avgN,t.nota);
-    const allG=coSt==='g'&&sujoSt==='g'&&nSt==='g';const anyR=coSt==='r'||sujoSt==='r'||nSt==='r';
-    const badge=allG?'g':anyR?'r':'a';
-    let bonus=0;if(avgCo&&avgCo<=t.co)bonus+=1200;if(sS===0&&emps.some(e=>o&&o[e.id]&&o[e.id].sujo!=null))bonus+=800;if(avgN&&avgN>=8.5)bonus+=500;
-    const planOk=emps.every(e=>o&&o[e.id]&&o[e.id].plan===100);if(planOk)bonus+=500;
-    let ativ=0;emps.forEach(e=>{if(o&&o[e.id]&&o[e.id].ativ)ativ+=o[e.id].ativ});bonus+=ativ*100;
+    let coS=0,coN=0,nS=0,nW=0,nTW=0,cosT=0,sS=0;
+    emps.forEach(e=>{const x=o&&o[e.id]||{};if(x.co){coS+=x.co;coN++}if(x.nota&&x.cos){nW+=x.nota*x.cos;nTW+=x.cos}if(x.cos)cosT+=x.cos;if(x.sujo!=null)sS+=x.sujo});
+    const avgCo=coN?coS/coN:null;
+    const notaPond=nTW>0?nW/nTW:null;
+    const coSt=sc(avgCo,t.co,true),nSt=sc(notaPond,t.nota);
+    const sujoSt=sS===0&&o?'g':sS>0?'r':'a';
+    const allG=nSt==='g';const anyR=coSt==='r'||nSt==='r'||sujoSt==='r';
+    const badge=allG&&coSt!=='r'?'g':anyR?'r':'a';
+    // Bonus calc
+    let bonusNota=0;if(notaPond){if(notaPond>=8.5)bonusNota=1050;else if(notaPond>=8.0)bonusNota=700;else if(notaPond>=7.5)bonusNota=0}
+    const planOk=emps.every(e=>o&&o[e.id]&&o[e.id].plan>=100);
+    let bonusPlan=planOk&&emps.some(e=>o&&o[e.id]&&o[e.id].plan!=null)?700:0;
+    const totalBonus=bonusNota+bonusPlan;
     const supColors=['var(--accent)','var(--green)','var(--amber)','var(--purple)','var(--red)'];
     const supColor=supColors[si%supColors.length];
-
-    html+=`<div class="cluster" style="border-top:2px solid ${supColor}"><div class="cluster-head"><div class="cluster-name"><span class="ico" style="color:${supColor}">●</span>${sup.name}</div><div class="cluster-badge ${bc(badge)}">${bl(badge)}</div></div>`;
+    html+=`<div class="cluster" style="border-top:2px solid ${supColor}"><div class="cluster-head"><div class="cluster-name"><span class="ico" style="color:${supColor}">●</span>${sup.name}<span style="font-size:10px;font-weight:400;color:var(--text2);margin-left:6px">Supervisor</span></div><div class="cluster-badge ${bc(badge)}">${bl(badge)}</div></div>`;
     html+=`<div class="cluster-kpis">
+      <div class="ckpi"><div class="ckpi-l">Nota Pond.</div><div class="ckpi-v" style="color:${vc(nSt)}">${notaPond?notaPond.toFixed(2):'--'}</div></div>
+      <div class="ckpi"><div class="ckpi-l">Checkouts</div><div class="ckpi-v">${cosT||'--'}</div></div>
       <div class="ckpi"><div class="ckpi-l">CO Médio</div><div class="ckpi-v" style="color:${vc(coSt)}">${avgCo?'R$'+avgCo.toFixed(0):'--'}</div></div>
-      <div class="ckpi"><div class="ckpi-l">Sujos</div><div class="ckpi-v" style="color:${vc(sujoSt)}">${o?sS:'--'}</div></div>
-      <div class="ckpi"><div class="ckpi-l">Nota</div><div class="ckpi-v" style="color:${vc(nSt)}">${avgN?avgN.toFixed(1):'--'}</div></div>
-      <div class="ckpi"><div class="ckpi-l">Bônus</div><div class="ckpi-v" style="color:var(--purple)">R$${bonus.toLocaleString()}</div></div>
+      <div class="ckpi"><div class="ckpi-l">Bônus</div><div class="ckpi-v" style="color:var(--purple)">R$${totalBonus.toLocaleString()}</div></div>
     </div>`;
-    html+=`<div class="emp-list"><div class="emp-row hdr"><div>Empreendimento</div><div style="text-align:center">CO</div><div style="text-align:center">Sujo</div><div style="text-align:center">Nota</div><div style="text-align:center">Plan</div></div>`;
+    html+=`<div class="emp-list"><div class="emp-row hdr"><div>Empreendimento</div><div style="text-align:center">COs</div><div style="text-align:center">Nota</div><div style="text-align:center">Peso</div><div style="text-align:center">Pond.</div></div>`;
     emps.forEach(e=>{const x=o&&o[e.id]||{};
-      const coC=x.co?x.co<=t.co?'var(--green)':x.co<=43?'var(--amber)':'var(--red)':'var(--text2)';
-      const sC=x.sujo===0?'var(--green)':x.sujo>0?'var(--red)':'var(--text2)';
+      const peso=nTW>0&&x.cos?(x.cos/nTW):0;
+      const pond=x.nota&&x.cos?x.nota*peso:0;
       const nC=x.nota?x.nota>=8.5?'var(--green)':x.nota>=8?'var(--amber)':'var(--red)':'var(--text2)';
-      html+=`<div class="emp-row"><div class="emp-name"><span class="dot ${x.co?dc(sc(x.co,t.co,true)):dc('a')}"></span>${e.n}</div><div class="emp-val" style="color:${coC}">${x.co?'R$'+x.co.toFixed(0):'--'}</div><div class="emp-val" style="color:${sC}">${x.sujo!=null?x.sujo:'--'}</div><div class="emp-val" style="color:${nC}">${x.nota||'--'}</div><div class="emp-val">${x.plan?x.plan+'%':'--'}</div></div>`;
+      html+=`<div class="emp-row"><div class="emp-name"><span class="dot ${x.nota?dc(sc(x.nota,t.nota)):dc('a')}"></span>${e.n}</div><div class="emp-val">${x.cos||'--'}</div><div class="emp-val" style="color:${nC}">${x.nota||'--'}</div><div class="emp-val">${peso?(peso*100).toFixed(0)+'%':'--'}</div><div class="emp-val" style="font-weight:700;color:${nC}">${pond?pond.toFixed(2):'--'}</div></div>`;
     });
     html+=`</div></div>`;
   });
   document.getElementById('clusters').innerHTML=html;
-
   const mg=d.fat&&d.res?(d.res/d.fat*100):0;
   const fatUh=d.fat&&d.uhs?(d.fat/d.uhs):0;
   const lucUh=d.res&&d.uhs?(d.res/d.uhs):0;
@@ -622,16 +651,22 @@ function rHist(){
 // === MODALS ===
 function buildOF(){
   const m=cm(),od=oD(m)||{};let h='';
-  SUPS.forEach(sup=>{
-    h+=`<div class="fsec"><div class="fsec-t">${sup.name}</div>`;
+  h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:8px 12px;background:var(--bg2);border-radius:10px">`;
+  h+=`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">Setor</span><div style="font-weight:700;font-size:13px">Operacional</div></div>`;
+  h+=`<div style="text-align:center"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">Mês Referência</span><div style="font-weight:700;font-size:13px">${MP[+m.split('-')[1]]}/${m.split('-')[0]}</div></div>`;
+  h+=`<div style="text-align:right"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">Última Atualização</span><div style="font-weight:400;font-size:11px;color:var(--text2)">${new Date().toLocaleDateString('pt-BR')}</div></div></div>`;
+  const supColors=['var(--accent)','var(--green)','var(--amber)','var(--purple)','var(--red)'];
+  SUPS.forEach((sup,si)=>{
+    h+=`<div class="fsec" style="border-left:3px solid ${supColors[si%supColors.length]};padding-left:12px">`;
+    h+=`<div class="fsec-t" style="display:flex;justify-content:space-between;align-items:center"><div>${sup.name}<span style="color:var(--text2);font-weight:400;font-size:11px;margin-left:6px">Supervisor</span></div></div>`;
     sup.emps.forEach(id=>{const e=E.find(x=>x.id===id);const d=od[id]||{};
       h+=`<div class="emp-hdr">${e.n} <span style="color:var(--text2);font-weight:400">(bl: R$${e.bl})</span></div>`;
-      h+=`<div class="frow3"><div class="fg"><label>Custo/CO (R$)</label><input type="number" step="0.01" id="op_${id}_co" value="${d.co||''}"></div>`;
-      h+=`<div class="fg"><label>Quartos Sujos</label><input type="number" id="op_${id}_sujo" value="${d.sujo!=null?d.sujo:''}"></div>`;
-      h+=`<div class="fg"><label>Nota Qualidade</label><input type="number" step="0.1" id="op_${id}_nota" value="${d.nota||''}"></div></div>`;
-      h+=`<div class="frow3"><div class="fg"><label>Checkouts</label><input type="number" id="op_${id}_cos" value="${d.cos||''}"></div>`;
-      h+=`<div class="fg"><label>UHs Ativadas</label><input type="number" id="op_${id}_ativ" value="${d.ativ||''}"></div>`;
-      h+=`<div class="fg"><label>Planilha (%)</label><input type="number" id="op_${id}_plan" value="${d.plan||''}"></div></div>`;
+      h+=`<div class="frow3"><div class="fg"><label>Checkouts (Qtd)</label><input type="number" id="op_${id}_cos" value="${d.cos||''}"></div>`;
+      h+=`<div class="fg"><label>Nota Qualidade</label><input type="number" step="0.1" min="0" max="10" id="op_${id}_nota" value="${d.nota||''}"></div>`;
+      h+=`<div class="fg"><label>UHs Gerenciadas</label><input type="number" id="op_${id}_uhs" value="${d.uhs||''}"></div></div>`;
+      h+=`<div class="frow3"><div class="fg"><label>Planilha (%)</label><input type="number" min="0" max="100" id="op_${id}_plan" value="${d.plan||''}"></div>`;
+      h+=`<div class="fg"><label>Custo/CO (R$)</label><input type="number" step="0.01" id="op_${id}_co" value="${d.co||''}"></div>`;
+      h+=`<div class="fg"><label>Quartos Sujos</label><input type="number" id="op_${id}_sujo" value="${d.sujo!=null?d.sujo:''}"></div></div>`;
     });h+=`</div>`;
   });
   document.getElementById('oForm').innerHTML=h;
@@ -654,13 +689,13 @@ function saveC(){const m=cm(),data=cS(),entry={};V.forEach(v=>{const d={};['assi
 
 function openM(t){
   const m=cm();
-  if(t==='g'){document.getElementById('mGm').textContent=MP[+m.split('-')[1]]+' 2026';const d=gD(m)||{};['uhs','fat','res','ocup','assin','novas','distr','churn','nps','rep','tresp'].forEach(f=>{const el=document.getElementById('g_'+f);if(el)el.value=d[f]||''});document.getElementById('mG').classList.add('show')}
-  else if(t==='c'){document.getElementById('mCm').textContent=MP[+m.split('-')[1]]+' 2026';buildCF();document.getElementById('mC').classList.add('show')}
-  else{document.getElementById('mOm').textContent=MP[+m.split('-')[1]]+' 2026';buildOF();document.getElementById('mO').classList.add('show')}
+  if(t==='g'){document.getElementById('mGm').textContent=MP[+m.split('-')[1]]+'/'+m.split('-')[0];const d=gD(m)||{};['uhs','fat','res','ocup','assin','novas','distr','churn','nps','rep','tresp'].forEach(f=>{const el=document.getElementById('g_'+f);if(el)el.value=d[f]||''});document.getElementById('mG').classList.add('show')}
+  else if(t==='c'){document.getElementById('mCm').textContent=MP[+m.split('-')[1]]+'/'+m.split('-')[0];buildCF();document.getElementById('mC').classList.add('show')}
+  else{const mm=cm();document.getElementById('mOm').textContent=MP[+mm.split('-')[1]]+'/'+mm.split('-')[0];buildOF();document.getElementById('mO').classList.add('show')}
 }
 function closeM(){document.querySelectorAll('.modal-ov').forEach(m=>m.classList.remove('show'))}
 function saveG(){const m=cm(),data=gS(),e={};['uhs','fat','res','ocup','assin','novas','distr','churn','nps','rep','tresp'].forEach(f=>{const el=document.getElementById('g_'+f);if(el&&el.value!=='')e[f]=parseFloat(el.value)});data[m]=e;gW(data);closeM();render()}
-function saveO(){const m=cm(),data=oS(),entry={};E.forEach(e=>{const d={};['co','sujo','nota','cos','ativ','plan'].forEach(f=>{const el=document.getElementById(`op_${e.id}_${f}`);if(el&&el.value!=='')d[f]=parseFloat(el.value)});if(Object.keys(d).length)entry[e.id]=d});data[m]=entry;oW(data);closeM();render()}
+function saveO(){const m=cm(),data=oS(),entry={};E.forEach(e=>{const d={};['cos','nota','uhs','plan','co','sujo'].forEach(f=>{const el=document.getElementById(`op_${e.id}_${f}`);if(el&&el.value!=='')d[f]=parseFloat(el.value)});if(Object.keys(d).length)entry[e.id]=d});data[m]=entry;oW(data);closeM();render()}
 function delM(t){const m=cm();if(!confirm(`Apagar ${ml(m)}?`))return;if(t==='g'){const d=gS();delete d[m];gW(d)}else if(t==='c'){const d=cS();delete d[m];cW(d)}else{const d=oS();delete d[m];oW(d)}closeM();render()}
 
 function sw(el,v){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['op','com','dir','cfg','hist'].forEach(id=>document.getElementById(id+'V').classList.toggle('active',id===v));if(v==='cfg')rCfg();render()}
