@@ -31,7 +31,7 @@ html,body{height:100%;overflow:hidden;font-family:'Syne',sans-serif;background:v
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
 /* VIEWS */
-.view{flex:1;padding:12px 20px;display:none;overflow:hidden}.view.active{display:flex;flex-direction:column}
+.view{flex:1;padding:12px 20px;display:none;overflow:auto}.view.active{display:flex;flex-direction:column}
 
 /* OPERACIONAL */
 .op-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;flex:1;min-height:0}
@@ -67,7 +67,11 @@ html,body{height:100%;overflow:hidden;font-family:'Syne',sans-serif;background:v
 
 /* DIRETORIA */
 .dir-top{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;flex-shrink:0;margin-bottom:10px}
-.dir-mid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;flex:1;min-height:0}
+.dir-mid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;min-height:0}
+.dir-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;min-height:180px}
+.metric-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:10px;font-weight:600;font-family:'Syne',sans-serif}
+.metric-legend span{display:flex;align-items:center;gap:3px}
+.metric-legend span::before{content:'';width:10px;height:3px;border-radius:2px;display:inline-block}
 .dir-chart{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;flex-direction:column;transition:border-color .2s}
 .dir-chart:hover{border-color:var(--accent)}
 .dir-chart-title{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
@@ -169,6 +173,11 @@ body.tv .topbar .btn,body.tv .sel:first-of-type{display:none}
       <div id="opComCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px"></div>
     </div>
     <div class="op-bottom" id="opKpis"></div>
+    <div class="dir-metrics">
+      <div class="dir-chart"><div class="dir-chart-title"><div class="cdot" style="background:var(--cyan)"></div>Receita por UH</div><div id="chRecUh" style="flex:1"></div><div class="metric-legend" id="lgRecUh"></div></div>
+      <div class="dir-chart"><div class="dir-chart-title"><div class="cdot" style="background:var(--purple)"></div>Resultado & Custos / UH</div><div id="chCustUh" style="flex:1"></div><div class="metric-legend" id="lgCustUh"></div></div>
+      <div class="dir-chart"><div class="dir-chart-title"><div class="cdot" style="background:var(--amber)"></div>Eficiência Operacional / UH</div><div id="chEficUh" style="flex:1"></div><div class="metric-legend" id="lgEficUh"></div></div>
+    </div>
   </div>
 
   <div class="view" id="comV">
@@ -394,7 +403,7 @@ function aCO(o){if(!o)return null;let s=0,n=0;E.forEach(e=>{if(o[e.id]&&o[e.id].
 function aN(o){if(!o)return null;let s=0,n=0;E.forEach(e=>{if(o[e.id]&&o[e.id].nota){s+=o[e.id].nota;n++}});return n?s/n:null}
 
 // === RENDER ===
-function render(){const m=cm(),g=gD(m),o=oD(m),c=cD(m),t=tt(m);rOp(g,o,t);rOpCom(g,c,t);rCom(g,c,t);rDir(g,o,t);rHist()}
+function render(){const m=cm(),g=gD(m),o=oD(m),c=cD(m),t=tt(m);rOp(g,o,t);rOpCom(g,c,t);rCom(g,c,t);rDir(g,o,t);rHist();rMetricsCharts()}
 
 function rOp(g,o,t){
   const d=g||{};const m=cm();
@@ -481,6 +490,48 @@ function rDir(g,o,t){
 
 // === MULTI-YEAR CHART ===
 const YC={'2023':'#878787','2024':'#b45309','2025':'#2563eb','2026':'#000000'};
+
+// === MÉTRICAS POR UH (Planilha Métricas Lobie - colunas AD:AL) ===
+const METRICS_UH=[
+{month:'2023-01',receita_tx_lobie_uh:699.66,receita_tx_consumo_uh:736.83,total_receita_uh:1436.48,resultado_uh:584.3,salario_uh:212.69,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:11.36,cx_eficiencia_uh:232.94},
+{month:'2023-02',receita_tx_lobie_uh:861.49,receita_tx_consumo_uh:833.84,total_receita_uh:1695.33,resultado_uh:884.42,salario_uh:199.63,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:10.66,cx_eficiencia_uh:229.69},
+{month:'2023-03',receita_tx_lobie_uh:597.56,receita_tx_consumo_uh:901.2,total_receita_uh:1498.76,resultado_uh:724.35,salario_uh:188.08,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:10.04,cx_eficiencia_uh:226.82},
+{month:'2023-04',receita_tx_lobie_uh:456.1,receita_tx_consumo_uh:817.22,total_receita_uh:1273.32,resultado_uh:467.9,salario_uh:197.9,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:10.53,cx_eficiencia_uh:229.26},
+{month:'2023-05',receita_tx_lobie_uh:440.34,receita_tx_consumo_uh:778.57,total_receita_uh:1218.91,resultado_uh:429.39,salario_uh:192.86,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:10.27,cx_eficiencia_uh:228.01},
+{month:'2023-06',receita_tx_lobie_uh:315.41,receita_tx_consumo_uh:691.83,total_receita_uh:1007.24,resultado_uh:227.89,salario_uh:189.65,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:10.1,cx_eficiencia_uh:227.21},
+{month:'2023-07',receita_tx_lobie_uh:479.99,receita_tx_consumo_uh:663.53,total_receita_uh:1143.52,resultado_uh:364.16,salario_uh:189.65,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:10.1,cx_eficiencia_uh:227.21},
+{month:'2023-08',receita_tx_lobie_uh:433.84,receita_tx_consumo_uh:716.97,total_receita_uh:1150.81,resultado_uh:408.92,salario_uh:177.8,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:9.47,cx_eficiencia_uh:224.26},
+{month:'2023-09',receita_tx_lobie_uh:494.49,receita_tx_consumo_uh:686.32,total_receita_uh:1180.81,resultado_uh:416.07,salario_uh:185.02,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:9.86,cx_eficiencia_uh:226.06},
+{month:'2023-10',receita_tx_lobie_uh:642.22,receita_tx_consumo_uh:774.85,total_receita_uh:1417.07,resultado_uh:652.33,salario_uh:185.02,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:9.86,cx_eficiencia_uh:226.06},
+{month:'2023-11',receita_tx_lobie_uh:805.48,receita_tx_consumo_uh:766.17,total_receita_uh:1571.65,resultado_uh:846.78,salario_uh:172.41,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:9.19,cx_eficiencia_uh:222.92},
+{month:'2023-12',receita_tx_lobie_uh:423.46,receita_tx_consumo_uh:752.74,total_receita_uh:1176.2,resultado_uh:378.25,salario_uh:207.06,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:223.58},
+{month:'2024-01',receita_tx_lobie_uh:842.92,receita_tx_consumo_uh:732.22,total_receita_uh:1575.14,resultado_uh:643.82,salario_uh:346.67,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:222.92},
+{month:'2024-02',receita_tx_lobie_uh:799.03,receita_tx_consumo_uh:736.36,total_receita_uh:1535.39,resultado_uh:650.87,salario_uh:346.67,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:244.3},
+{month:'2024-03',receita_tx_lobie_uh:542.71,receita_tx_consumo_uh:701.82,total_receita_uh:1244.53,resultado_uh:287.51,salario_uh:330.89,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:205},
+{month:'2024-04',receita_tx_lobie_uh:396.69,receita_tx_consumo_uh:758.32,total_receita_uh:1155.01,resultado_uh:-18.52,salario_uh:408.77,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:256.58},
+{month:'2024-05',receita_tx_lobie_uh:297.51,receita_tx_consumo_uh:722.51,total_receita_uh:1020.02,resultado_uh:104.49,salario_uh:376.19,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:148.73},
+{month:'2024-06',receita_tx_lobie_uh:263.24,receita_tx_consumo_uh:726.25,total_receita_uh:989.49,resultado_uh:169.5,salario_uh:404.18,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:56.7},
+{month:'2024-07',receita_tx_lobie_uh:314.44,receita_tx_consumo_uh:771,total_receita_uh:1085.44,resultado_uh:-4.34,salario_uh:366.12,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:321.68},
+{month:'2024-08',receita_tx_lobie_uh:332.64,receita_tx_consumo_uh:743.76,total_receita_uh:1076.4,resultado_uh:281.22,salario_uh:346.15,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:117.39},
+{month:'2024-09',receita_tx_lobie_uh:508.49,receita_tx_consumo_uh:754.6,total_receita_uh:1263.09,resultado_uh:330.84,salario_uh:341.15,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:266.94},
+{month:'2024-10',receita_tx_lobie_uh:418.94,receita_tx_consumo_uh:736.32,total_receita_uh:1155.26,resultado_uh:164.27,salario_uh:394.49,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:310.77},
+{month:'2024-11',receita_tx_lobie_uh:629.68,receita_tx_consumo_uh:771.97,total_receita_uh:1401.65,resultado_uh:494.14,salario_uh:386.6,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:308.54},
+{month:'2024-12',receita_tx_lobie_uh:336.66,receita_tx_consumo_uh:691.17,total_receita_uh:1027.83,resultado_uh:71.35,salario_uh:337.64,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:357.52},
+{month:'2025-01',receita_tx_lobie_uh:747.18,receita_tx_consumo_uh:749.44,total_receita_uh:1496.62,resultado_uh:474.99,salario_uh:432.46,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:222.02},
+{month:'2025-02',receita_tx_lobie_uh:514.18,receita_tx_consumo_uh:753.77,total_receita_uh:1267.95,resultado_uh:227.97,salario_uh:434.2,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:225.44},
+{month:'2025-03',receita_tx_lobie_uh:1008.52,receita_tx_consumo_uh:920.18,total_receita_uh:1928.7,resultado_uh:650.95,salario_uh:410.46,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:359.41},
+{month:'2025-04',receita_tx_lobie_uh:376.47,receita_tx_consumo_uh:860.48,total_receita_uh:1236.95,resultado_uh:-128.79,salario_uh:404.07,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:303.93},
+{month:'2025-05',receita_tx_lobie_uh:527.43,receita_tx_consumo_uh:835.21,total_receita_uh:1362.64,resultado_uh:28.42,salario_uh:324.24,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:541.39},
+{month:'2025-06',receita_tx_lobie_uh:558.35,receita_tx_consumo_uh:798.51,total_receita_uh:1356.86,resultado_uh:349.02,salario_uh:281.54,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:260.97},
+{month:'2025-07',receita_tx_lobie_uh:611.34,receita_tx_consumo_uh:751.18,total_receita_uh:1362.52,resultado_uh:-520.65,salario_uh:356.73,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:535.03},
+{month:'2025-08',receita_tx_lobie_uh:447.89,receita_tx_consumo_uh:792.77,total_receita_uh:1240.66,resultado_uh:-19.01,salario_uh:359.11,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:359.52},
+{month:'2025-09',receita_tx_lobie_uh:388.63,receita_tx_consumo_uh:742.54,total_receita_uh:1131.17,resultado_uh:-71.78,salario_uh:311.91,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:316.38},
+{month:'2025-10',receita_tx_lobie_uh:460.7,receita_tx_consumo_uh:808.09,total_receita_uh:1268.79,resultado_uh:4.45,salario_uh:310.11,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:413.87},
+{month:'2025-11',receita_tx_lobie_uh:417.26,receita_tx_consumo_uh:775.12,total_receita_uh:1192.38,resultado_uh:-113.52,salario_uh:305.24,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:379.72},
+{month:'2025-12',receita_tx_lobie_uh:436.67,receita_tx_consumo_uh:752.19,total_receita_uh:1188.86,resultado_uh:52.19,salario_uh:314.63,custo_lavanderia_uh:120,custo_camareira_uh:null,evasao_uh:null,cx_eficiencia_uh:293.46},
+{month:'2026-01',receita_tx_lobie_uh:916.45,receita_tx_consumo_uh:651.66,total_receita_uh:1568.11,resultado_uh:466.47,salario_uh:304.81,custo_lavanderia_uh:77.76,custo_camareira_uh:0,evasao_uh:0,cx_eficiencia_uh:292.53},
+{month:'2026-02',receita_tx_lobie_uh:916.45,receita_tx_consumo_uh:760.71,total_receita_uh:1677.16,resultado_uh:519.92,salario_uh:292.39,custo_lavanderia_uh:77.76,custo_camareira_uh:0,evasao_uh:0,cx_eficiencia_uh:253.78},
+];
 function yearSeries(field){
   const all=aM().map(m=>({month:m,...(gD(m)||{})})).filter(x=>x.uhs);
   const yrs={};all.forEach(d=>{const y=d.month.split('-')[0];if(!yrs[y])yrs[y]=[];yrs[y].push({...d,mi:+d.month.split('-')[1]})});
@@ -488,7 +539,9 @@ function yearSeries(field){
 }
 
 function rChUhs(pts,t){
-  const el=document.getElementById('chUhs');const W=el.offsetWidth||400,H=el.offsetHeight||160;
+  const el=document.getElementById('chUhs');if(!el)return;
+  const W=el.offsetWidth||400,H=el.offsetHeight||160;
+  if(W<20||H<20){el.innerHTML='';return}
   const PL=32,PR=10,PT=16,PB=18,cw=W-PL-PR,ch=H-PT-PB;
   const yrs=yearSeries('uhs');const yrKeys=Object.keys(yrs).sort();
   if(!yrKeys.length){el.innerHTML='<div style="color:var(--text2);font-size:12px;padding:20px">Sem dados</div>';return}
@@ -513,29 +566,109 @@ function rChUhs(pts,t){
 }
 
 function rChMarg(pts,t){
-  const el=document.getElementById('chMarg');const W=el.offsetWidth||300,H=el.offsetHeight||160;
+  const el=document.getElementById('chMarg');if(!el)return;
+  const W=el.offsetWidth||400,H=el.offsetHeight||160;
+  if(W<20||H<20){el.innerHTML='';return}
   const PL=30,PR=8,PT=16,PB=18,cw=W-PL-PR,ch=H-PT-PB;
   const yrs=yearSeries('res');const yrKeys=Object.keys(yrs).sort();
   if(!yrKeys.length){el.innerHTML='<div style="color:var(--text2);font-size:12px;padding:20px">Sem dados</div>';return}
-  let allM=[];yrKeys.forEach(y=>yrs[y].forEach(d=>{if(d.fat)allM.push(d.res/d.fat*100)}));
-  const mx=Math.max(45,...allM),mn=Math.min(-45,...allM);
-  const zy=PT+ch-((0-mn)/(mx-mn))*ch;
+  let allM=[];yrKeys.forEach(y=>yrs[y].forEach(d=>{if(d.fat&&d.fat>0)allM.push(d.res/d.fat*100)}));
+  if(!allM.length){el.innerHTML='<div style="color:var(--text2);font-size:12px;padding:20px">Sem dados de margem</div>';return}
+  const rawMax=Math.max(...allM),rawMin=Math.min(...allM);
+  const mx=Math.max(rawMax*1.15,t.mg+5,10),mn=Math.min(rawMin*1.15,-5);
+  const range=mx-mn;if(range===0)return;
+  const zy=PT+ch-((0-mn)/range)*ch;
   let svg=`<line x1="${PL}" y1="${zy}" x2="${W-PR}" y2="${zy}" stroke="var(--text2)" stroke-width=".8" opacity=".2"/>`;
   for(let m=1;m<=12;m++){const x=PL+((m-1)/11)*cw;svg+=`<text x="${x}" y="${H-3}" text-anchor="middle" fill="var(--text2)" font-size="9" font-weight="600" font-family="Syne">${MP[m].substring(0,3)}</text>`}
-  const t15=PT+ch-((t.mg-mn)/(mx-mn))*ch;
+  const t15=PT+ch-((t.mg-mn)/range)*ch;
   svg+=`<line x1="${PL}" y1="${t15}" x2="${W-PR}" y2="${t15}" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="3,3" opacity=".5"/><text x="${W-PR}" y="${t15-3}" text-anchor="end" fill="var(--green)" font-size="9" font-weight="700">${t.mg}%</text>`;
   yrKeys.forEach(yr=>{
-    const ds=yrs[yr].filter(d=>d.fat);const c=YC[yr]||'#888';const last=yr===yrKeys[yrKeys.length-1];
+    const ds=yrs[yr].filter(d=>d.fat&&d.fat>0);const c=YC[yr]||'#888';const last=yr===yrKeys[yrKeys.length-1];
     let path='',dots='';
-    ds.forEach((d,i)=>{const mg=d.res/d.fat*100;const x=PL+((d.mi-1)/11)*cw,y=PT+ch-((mg-mn)/(mx-mn))*ch;
+    ds.forEach((d,i)=>{const mg=d.res/d.fat*100;const x=PL+((d.mi-1)/11)*cw,y=PT+ch-((mg-mn)/range)*ch;
       path+=(i===0?'M':'L')+` ${x} ${y}`;
-      if(last){const fc=mg>=15?'var(--green)':mg>=0?'var(--amber)':'var(--red)';dots+=`<circle cx="${x}" cy="${y}" r="4" fill="${fc}" stroke="white" stroke-width="2"/><text x="${x}" y="${y+(mg<0?14:-10)}" text-anchor="middle" fill="${fc}" font-size="9" font-weight="700" font-family="Space Mono">${mg.toFixed(0)}%</text>`}
+      if(last){const fc=mg>=t.mg?'var(--green)':mg>=0?'var(--amber)':'var(--red)';dots+=`<circle cx="${x}" cy="${y}" r="4" fill="${fc}" stroke="white" stroke-width="2"/><text x="${x}" y="${y+(mg<0?14:-10)}" text-anchor="middle" fill="${fc}" font-size="9" font-weight="700" font-family="Space Mono">${mg.toFixed(0)}%</text>`}
       else dots+=`<circle cx="${x}" cy="${y}" r="2" fill="${c}" opacity=".6"/>`;
     });
     svg+=`<path d="${path}" fill="none" stroke="${c}" stroke-width="${last?3.5:2}" opacity="${last?1:.4}" stroke-linejoin="round"/>${dots}`;
   });
   let lx=PL;yrKeys.forEach(yr=>{const c=YC[yr]||'#888';svg+=`<line x1="${lx}" y1="5" x2="${lx+14}" y2="5" stroke="${c}" stroke-width="3" stroke-linecap="round"/><text x="${lx+17}" y="8" fill="${c}" font-size="9" font-weight="700" font-family="Syne">${yr}</text>`;lx+=46});
   el.innerHTML=`<svg width="100%" height="100%" viewBox="0 0 ${W} ${H}">${svg}</svg>`;
+}
+
+// === GENERIC MULTI-LINE CHART for Metrics per UH ===
+function rLineChart(elId, lgId, series, opts={}){
+  const el=document.getElementById(elId);if(!el)return;
+  const W=el.offsetWidth||300,H=el.offsetHeight||140;
+  if(W<20||H<20){el.innerHTML='';return}
+  const PL=38,PR=8,PT=14,PB=18,cw=W-PL-PR,ch=H-PT-PB;
+  // Collect all data points
+  let allV=[],allMonths=new Set();
+  series.forEach(s=>{s.data.forEach(d=>{if(d.v!=null){allV.push(d.v);allMonths.add(d.mi)}})});
+  if(!allV.length){el.innerHTML='<div style="color:var(--text2);font-size:12px;padding:20px">Sem dados</div>';return}
+  const mx=Math.max(...allV)*1.1,mn=opts.allowNeg?Math.min(0,...allV)*1.1:0;
+  const range=mx-mn||1;
+  let svg='';
+  // Y-axis labels (3 ticks)
+  [0,.5,1].forEach(f=>{const v=mn+range*f;const y=PT+ch-(f*ch);
+    svg+=`<line x1="${PL-2}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="var(--border)" stroke-width=".5"/>`;
+    svg+=`<text x="${PL-4}" y="${y+3}" text-anchor="end" fill="var(--text2)" font-size="8" font-family="Space Mono">${opts.prefix||''}${Math.round(v)}</text>`});
+  // X-axis months
+  const months=METRICS_UH.map(d=>d.month);const uniqueYrs=[...new Set(months.map(m=>m.split('-')[0]))].sort();
+  // Draw year separators and labels
+  let lastYr='';months.forEach((m,i)=>{const yr=m.split('-')[0];const mi=+m.split('-')[1];
+    const x=PL+(i/(months.length-1))*cw;
+    if(yr!==lastYr&&i>0){svg+=`<line x1="${x}" y1="${PT}" x2="${x}" y2="${H-PB}" stroke="var(--border)" stroke-width=".5" stroke-dasharray="2,2"/>`}
+    lastYr=yr;
+    // Show month label every 3 months
+    if(mi%3===1||months.length<20){svg+=`<text x="${x}" y="${H-3}" text-anchor="middle" fill="var(--text2)" font-size="7" font-weight="600" font-family="Syne">${MP[mi].substring(0,1)}${yr.slice(2)}</text>`}
+  });
+  // Target line
+  if(opts.target){const ty=PT+ch-((opts.target-mn)/range)*ch;
+    svg+=`<line x1="${PL}" y1="${ty}" x2="${W-PR}" y2="${ty}" stroke="var(--green)" stroke-width="1" stroke-dasharray="3,3" opacity=".6"/><text x="${W-PR}" y="${ty-3}" text-anchor="end" fill="var(--green)" font-size="8" font-weight="700">${opts.prefix||''}${opts.target}</text>`}
+  // Zero line for negative values
+  if(opts.allowNeg&&mn<0){const zy=PT+ch-((0-mn)/range)*ch;
+    svg+=`<line x1="${PL}" y1="${zy}" x2="${W-PR}" y2="${zy}" stroke="var(--text2)" stroke-width="1" opacity=".3"/>`}
+  // Lines
+  series.forEach(s=>{let path='',lastPt=null;
+    s.data.forEach((d,i)=>{if(d.v==null)return;
+      const x=PL+(d.idx/(months.length-1))*cw,y=PT+ch-((d.v-mn)/range)*ch;
+      path+=(lastPt?'L':'M')+` ${x} ${y}`;lastPt={x,y,v:d.v};
+    });
+    svg+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${s.bold?2.5:1.5}" opacity="${s.bold?1:.7}" stroke-linejoin="round"/>`;
+    // Last point dot + value
+    if(lastPt){svg+=`<circle cx="${lastPt.x}" cy="${lastPt.y}" r="3.5" fill="${s.color}" stroke="white" stroke-width="1.5"/>`;
+      svg+=`<text x="${lastPt.x}" y="${lastPt.y-8}" text-anchor="middle" fill="${s.color}" font-size="9" font-weight="700" font-family="Space Mono">${opts.prefix||''}${Math.round(lastPt.v)}</text>`}
+  });
+  el.innerHTML=`<svg width="100%" height="100%" viewBox="0 0 ${W} ${H}">${svg}</svg>`;
+  // Legend
+  const lgEl=document.getElementById(lgId);if(lgEl){
+    lgEl.innerHTML=series.map(s=>`<span><span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:${s.color}"></span>${s.label}</span>`).join('')}
+}
+
+function prepMetricSeries(field,color,label,bold=false){
+  const data=[];METRICS_UH.forEach((d,i)=>{data.push({idx:i,mi:+d.month.split('-')[1],v:d[field]})});
+  return {data,color,label,bold};
+}
+
+function rMetricsCharts(){
+  // Chart 1: Receita por UH
+  rLineChart('chRecUh','lgRecUh',[
+    prepMetricSeries('total_receita_uh','#000000','Total Receita/UH',true),
+    prepMetricSeries('receita_tx_lobie_uh','#2563eb','Tx Adm/UH'),
+    prepMetricSeries('receita_tx_consumo_uh','#0891b2','Tx Consumo/UH'),
+  ],{prefix:'R$',target:1300});
+  // Chart 2: Resultado & Custos por UH
+  rLineChart('chCustUh','lgCustUh',[
+    prepMetricSeries('resultado_uh','#16a34a','Resultado/UH',true),
+    prepMetricSeries('salario_uh','#dc2626','Salário/UH'),
+    prepMetricSeries('custo_lavanderia_uh','#d97706','Lavanderia/UH'),
+  ],{prefix:'R$',allowNeg:true,target:450});
+  // Chart 3: Eficiência Operacional
+  rLineChart('chEficUh','lgEficUh',[
+    prepMetricSeries('cx_eficiencia_uh','#7c3aed','Cx Eficiência/UH',true),
+    prepMetricSeries('evasao_uh','#db2777','Evasão/UH'),
+  ],{prefix:'R$'});
 }
 
 function rOpCom(g,c,t){
@@ -696,7 +829,7 @@ function saveG(){const m=cm(),data=gS(),e={};['uhs','fat','res','ocup','assin','
 function saveO(){const m=cm(),data=oS(),entry={};E.forEach(e=>{const d={};['cos','nota','uhs','plan','co','sujo'].forEach(f=>{const el=document.getElementById(`op_${e.id}_${f}`);if(el&&el.value!=='')d[f]=parseFloat(el.value)});if(Object.keys(d).length)entry[e.id]=d});data[m]=entry;oW(data);closeM();render()}
 function delM(t){const m=cm();if(!confirm(`Apagar ${ml(m)}?`))return;if(t==='g'){const d=gS();delete d[m];gW(d)}else if(t==='c'){const d=cS();delete d[m];cW(d)}else{const d=oS();delete d[m];oW(d)}closeM();render()}
 
-function sw(el,v){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['op','com','dir','cfg','hist'].forEach(id=>document.getElementById(id+'V').classList.toggle('active',id===v));if(v==='cfg')rCfg();render()}
+function sw(el,v){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['op','com','dir','cfg','hist'].forEach(id=>document.getElementById(id+'V').classList.toggle('active',id===v));if(v==='cfg')rCfg();requestAnimationFrame(()=>requestAnimationFrame(render))}
 function toggleTV(){document.body.classList.toggle('tv')}
 
 // === CONFIG / GESTÃO ===
